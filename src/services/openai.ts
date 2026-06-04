@@ -10,7 +10,7 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-const DEFAULT_MODEL = isGemini ? 'gemini-1.5-flash' : 'gpt-4o-mini';
+const DEFAULT_MODEL = isGemini ? 'gemini-2.5-flash' : 'gpt-4o-mini';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
