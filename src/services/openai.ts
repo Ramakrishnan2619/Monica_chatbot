@@ -69,8 +69,6 @@ export async function getChatResponse(messages: ChatMessage[], userMood?: string
       messages: [systemMessage, ...messages],
       max_tokens: 300,
       temperature: 0.8, // Slightly creative but consistent
-      presence_penalty: 0.1,
-      frequency_penalty: 0.1,
     });
 
     return response.choices[0]?.message?.content || "I'm here for you, but I'm having trouble responding right now. How are you feeling?";
