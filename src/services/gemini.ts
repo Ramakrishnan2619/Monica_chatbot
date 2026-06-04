@@ -1,24 +1,11 @@
-import OpenAI from 'openai';
+import { GoogleGenAI } from '@google/genai';
 
-// Automatically detect whether OpenAI key or Gemini key is configured
-const apiKey = import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || "";
-const isGemini = apiKey.startsWith("AIzaSy") || !!import.meta.env.VITE_GEMINI_API_KEY;
+// Automatically detect Gemini key
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_OPENAI_API_KEY || "";
 
-const openai = new OpenAI({
-  apiKey: apiKey,
-  baseURL: isGemini ? "https://generativelanguage.googleapis.com/v1beta/openai/" : undefined,
-  dangerouslyAllowBrowser: true,
-  defaultHeaders: isGemini ? {
-    'x-stainless-lang': undefined,
-    'x-stainless-package-version': undefined,
-    'x-stainless-os': undefined,
-    'x-stainless-arch': undefined,
-    'x-stainless-runtime': undefined,
-    'x-stainless-runtime-version': undefined
-  } : undefined
-});
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
-const DEFAULT_MODEL = isGemini ? 'gemini-2.5-flash' : 'gpt-4o-mini';
+const DEFAULT_MODEL = 'gemini-2.5-flash';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -64,30 +51,35 @@ Remember: You're not just an AI, you're Monica - a caring friend who's always th
 
 export async function getChatResponse(messages: ChatMessage[], userMood?: string): Promise<string> {
   try {
-    // Add mood context if provided
-    const systemMessage: ChatMessage = {
-      role: 'system',
-      content: userMood 
-        ? `${MONICA_SYSTEM_PROMPT}\n\nCURRENT USER MOOD: The user has indicated they're feeling ${userMood}. Please acknowledge this and respond appropriately to their emotional state.`
-        : MONICA_SYSTEM_PROMPT
-    };
+    const formattedSystemPrompt = userMood 
+      ? `${MONICA_SYSTEM_PROMPT}\n\nCURRENT USER MOOD: The user has indicated they're feeling ${userMood}. Please acknowledge this and respond appropriately to their emotional state.`
+      : MONICA_SYSTEM_PROMPT;
 
-    const response = await openai.chat.completions.create({
+    // Convert OpenAI-style messages to Gemini SDK contents format
+    const contents = messages.map(msg => ({
+      role: msg.role === 'system' ? 'model' : (msg.role === 'assistant' ? 'model' : 'user'),
+      parts: [{ text: msg.content }]
+    }));
+
+    const response = await ai.models.generateContent({
       model: DEFAULT_MODEL,
-      messages: [systemMessage, ...messages],
-      max_tokens: 300,
-      temperature: 0.8, // Slightly creative but consistent
+      contents: contents,
+      config: {
+        systemInstruction: formattedSystemPrompt,
+        temperature: 0.8,
+        maxOutputTokens: 300,
+      }
     });
 
-    return response.choices[0]?.message?.content || "I'm here for you, but I'm having trouble responding right now. How are you feeling?";
+    return response.text || "I'm here for you, but I'm having trouble responding right now. How are you feeling?";
   } catch (error) {
     console.error('API Error:', error);
     
     // Fallback responses for different error types
     if (error instanceof Error) {
-      if (error.message.includes('rate_limit') || error.message.includes('429')) {
+      if (error.message.includes('rate limit') || error.message.includes('429')) {
         return "I'm getting a lot of conversations right now! Give me just a moment, and I'll be right back with you. You're important to me. 💜";
-      } else if (error.message.includes('invalid_api_key') || error.message.includes('API key not valid')) {
+      } else if (error.message.includes('API key') || error.message.includes('403') || error.message.includes('401')) {
         return "I'm having some technical difficulties connecting right now. But I want you to know - whatever you're going through, you're not alone. 🤗";
       }
       
@@ -101,20 +93,17 @@ export async function getChatResponse(messages: ChatMessage[], userMood?: string
 
 export async function generateWellnessTip(): Promise<string> {
   try {
-    const response = await openai.chat.completions.create({
+    const response = await ai.models.generateContent({
       model: DEFAULT_MODEL,
-      messages: [{
-        role: 'system',
-        content: 'You are Monica, a caring wellness companion. Generate a short, uplifting daily wellness tip (1-2 sentences max). Make it personal, actionable, and warm. Include a relevant emoji at the end.'
-      }, {
-        role: 'user',
-        content: 'Give me a daily wellness tip for today.'
-      }],
-      max_tokens: 100,
-      temperature: 0.9,
+      contents: "Give me a daily wellness tip for today.",
+      config: {
+        systemInstruction: 'You are Monica, a caring wellness companion. Generate a short, uplifting daily wellness tip (1-2 sentences max). Make it personal, actionable, and warm. Include a relevant emoji at the end.',
+        temperature: 0.9,
+        maxOutputTokens: 100,
+      }
     });
 
-    return response.choices[0]?.message?.content || "Take three deep breaths right now. You're doing better than you think, and tomorrow is full of possibilities. 🌸";
+    return response.text || "Take three deep breaths right now. You're doing better than you think, and tomorrow is full of possibilities. 🌸";
   } catch (error) {
     console.error('Wellness tip generation error:', error);
     return "Take three deep breaths right now. You're doing better than you think, and tomorrow is full of possibilities. 🌸";

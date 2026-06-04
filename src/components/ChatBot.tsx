@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Heart, Send, ArrowLeft, Sparkles, Smile, Wind, RefreshCw, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { getChatResponse, ChatMessage } from '../services/openai';
+import { getChatResponse, ChatMessage } from '../services/gemini';
 
 interface ChatBotProps {
   onBack: () => void;

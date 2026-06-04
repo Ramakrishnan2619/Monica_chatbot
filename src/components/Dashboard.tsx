@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, Shield, Moon, Sun, LogOut, User } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { generateWellnessTip } from '../services/openai';
+import { generateWellnessTip } from '../services/gemini';
 
 interface DashboardProps {
   onNavigate: (view: 'chat' | 'firstaid') => void;
