@@ -82,6 +82,9 @@ export async function getChatResponse(messages: ChatMessage[], userMood?: string
       } else if (error.message.includes('invalid_api_key') || error.message.includes('API key not valid')) {
         return "I'm having some technical difficulties connecting right now. But I want you to know - whatever you're going through, you're not alone. 🤗";
       }
+      
+      // Temporary: Show the exact error message in the UI to help debug
+      return `DEBUG ERROR: ${error.message}`;
     }
     
     return "I'm having a moment of technical difficulty, but I'm still here with you in spirit. Sometimes we all need a pause - how are you taking care of yourself today? 💙";
