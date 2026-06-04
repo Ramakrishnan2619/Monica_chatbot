@@ -1,9 +1,16 @@
 import OpenAI from 'openai';
 
+// Automatically detect whether OpenAI key or Gemini key is configured
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || "";
+const isGemini = apiKey.startsWith("AIzaSy") || !!import.meta.env.VITE_GEMINI_API_KEY;
+
 const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  apiKey: apiKey,
+  baseURL: isGemini ? "https://generativelanguage.googleapis.com/v1beta/openai/" : undefined,
   dangerouslyAllowBrowser: true
 });
+
+const DEFAULT_MODEL = isGemini ? 'gemini-1.5-flash' : 'gpt-4o-mini';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -58,7 +65,7 @@ export async function getChatResponse(messages: ChatMessage[], userMood?: string
     };
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini', // Using the more affordable model
+      model: DEFAULT_MODEL,
       messages: [systemMessage, ...messages],
       max_tokens: 300,
       temperature: 0.8, // Slightly creative but consistent
@@ -68,13 +75,13 @@ export async function getChatResponse(messages: ChatMessage[], userMood?: string
 
     return response.choices[0]?.message?.content || "I'm here for you, but I'm having trouble responding right now. How are you feeling?";
   } catch (error) {
-    console.error('OpenAI API Error:', error);
+    console.error('API Error:', error);
     
     // Fallback responses for different error types
     if (error instanceof Error) {
-      if (error.message.includes('rate_limit')) {
+      if (error.message.includes('rate_limit') || error.message.includes('429')) {
         return "I'm getting a lot of conversations right now! Give me just a moment, and I'll be right back with you. You're important to me. 💜";
-      } else if (error.message.includes('invalid_api_key')) {
+      } else if (error.message.includes('invalid_api_key') || error.message.includes('API key not valid')) {
         return "I'm having some technical difficulties connecting right now. But I want you to know - whatever you're going through, you're not alone. 🤗";
       }
     }
@@ -86,7 +93,7 @@ export async function getChatResponse(messages: ChatMessage[], userMood?: string
 export async function generateWellnessTip(): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: DEFAULT_MODEL,
       messages: [{
         role: 'system',
         content: 'You are Monica, a caring wellness companion. Generate a short, uplifting daily wellness tip (1-2 sentences max). Make it personal, actionable, and warm. Include a relevant emoji at the end.'

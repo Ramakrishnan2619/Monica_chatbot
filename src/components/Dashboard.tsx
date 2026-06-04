@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, Shield, Moon, Sun, LogOut, User } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
+import { generateWellnessTip } from '../services/openai';
 
 interface DashboardProps {
   onNavigate: (view: 'chat' | 'firstaid') => void;
@@ -10,6 +11,27 @@ interface DashboardProps {
 export default function Dashboard({ onNavigate }: DashboardProps) {
   const { isDark, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
+  const [dailyTip, setDailyTip] = useState<string>('Take a deep breath. You are doing great.');
+  const [isLoadingTip, setIsLoadingTip] = useState<boolean>(true);
+
+  useEffect(() => {
+    let active = true;
+    generateWellnessTip()
+      .then((tip) => {
+        if (active) {
+          setDailyTip(tip);
+          setIsLoadingTip(false);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setIsLoadingTip(false);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-25 to-mint-50 dark:from-gray-900 dark:via-purple-900 dark:to-pink-900 transition-all duration-500">
