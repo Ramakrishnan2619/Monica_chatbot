@@ -77,14 +77,11 @@ export async function getChatResponse(messages: ChatMessage[], userMood?: string
     
     // Fallback responses for different error types
     if (error instanceof Error) {
-      if (error.message.includes('rate limit') || error.message.includes('429')) {
-        return "I'm getting a lot of conversations right now! Give me just a moment, and I'll be right back with you. You're important to me. 💜";
+      if (error.message.includes('rate limit') || error.message.includes('429') || error.message.includes('503') || error.message.includes('UNAVAILABLE')) {
+        return "The AI servers are currently experiencing very high demand. Please wait a few moments and try sending your message again. I'm here for you! 💜";
       } else if (error.message.includes('API key') || error.message.includes('403') || error.message.includes('401')) {
         return "I'm having some technical difficulties connecting right now. But I want you to know - whatever you're going through, you're not alone. 🤗";
       }
-      
-      // Temporary: Show the exact error message in the UI to help debug
-      return `DEBUG ERROR: ${error.message}`;
     }
     
     return "I'm having a moment of technical difficulty, but I'm still here with you in spirit. Sometimes we all need a pause - how are you taking care of yourself today? 💙";
