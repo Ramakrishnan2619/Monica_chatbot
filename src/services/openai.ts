@@ -7,7 +7,15 @@ const isGemini = apiKey.startsWith("AIzaSy") || !!import.meta.env.VITE_GEMINI_AP
 const openai = new OpenAI({
   apiKey: apiKey,
   baseURL: isGemini ? "https://generativelanguage.googleapis.com/v1beta/openai/" : undefined,
-  dangerouslyAllowBrowser: true
+  dangerouslyAllowBrowser: true,
+  defaultHeaders: isGemini ? {
+    'x-stainless-lang': undefined,
+    'x-stainless-package-version': undefined,
+    'x-stainless-os': undefined,
+    'x-stainless-arch': undefined,
+    'x-stainless-runtime': undefined,
+    'x-stainless-runtime-version': undefined
+  } : undefined
 });
 
 const DEFAULT_MODEL = isGemini ? 'gemini-2.5-flash' : 'gpt-4o-mini';
