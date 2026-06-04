@@ -89,12 +89,8 @@ Vercel is the recommended and easiest way to host this Vite + React application.
 
 ---
 
-## 💼 Add This to Your Resume
+## ⚠️ Medical Disclaimer
 
-Here are a few high-impact bullet points you can add to your resume using the STAR/XYZ format:
+**Monica is an AI-powered emotional wellness companion, not a licensed medical professional or mental health therapist. The wellness suggestions, daily tips, and conversational support provided by this application are for informational and educational purposes only and should not be treated as professional medical advice, diagnosis, or treatment.**
 
-> *   **Frontend Engineer / Full-Stack Developer**
->     *   Designed and engineered **Monica**, a responsive AI emotional wellness application using **React**, **TypeScript**, and **Tailwind CSS**, resulting in a 100% interactive support platform.
->     *   Integrated **OpenAI API (GPT-4o-mini)** to generate real-time, context-aware empathetic responses custom-tailored to user-submitted emotional moods.
->     *   Developed a native visual **Box Breathing widget** using React state and CSS keyframes, offering smooth, synchronized breathing exercises to reduce user anxiety.
->     *   Implemented a unified global **React Context** architecture managing authentication states and dynamic light/dark modes, enhancing mobile and desktop usability.
+If you are experiencing a mental health crisis, severe distress, or a physical medical emergency, please contact professional emergency services (such as 911 or your local emergency number) immediately.

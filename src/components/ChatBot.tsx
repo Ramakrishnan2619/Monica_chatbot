@@ -319,6 +319,9 @@ export default function ChatBot({ onBack }: ChatBotProps) {
               <Send className="w-4 h-4" />
             </button>
           </form>
+          <div className="px-6 py-2 bg-white/30 dark:bg-gray-800/30 text-[10px] text-center text-gray-500 dark:text-gray-400 border-t border-purple-50/50 dark:border-gray-700/50">
+            Disclaimer: Monica is an AI wellness companion, not a licensed medical professional. Suggestions or information provided are not substitutes for professional medical advice or treatment. If you are experiencing a crisis or medical emergency, please contact your local emergency services immediately.
+          </div>
         </div>
       </div>
     </div>
